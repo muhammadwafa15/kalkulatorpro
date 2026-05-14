@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator ROAS Mei 2026</title>
+<style>
+/* ════════════════════════════════════════
+   GLOBAL RESET
+   ════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#F0EEE8;color:#1a1a1a;font-size:14px;min-height:100vh}
+
+/* ════════════════════════════════════════
+   PAGE SYSTEM — hanya satu page tampil
+   ════════════════════════════════════════ */
+.page{display:none}
+.page.active{display:block}
+
+/* ════════════════════════════════════════
+   PAGE: TOKEN GATE
+   ════════════════════════════════════════ */
+#page-gate{
+  min-height:100vh;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 55%,#0f3460 100%);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+#page-gate.active{display:flex}
+.gate-card{
+  background:#fff;border-radius:20px;padding:40px 36px;
+  width:100%;max-width:420px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+.gate-logo{font-size:42px;margin-bottom:14px}
+.gate-title{font-size:20px;font-weight:700;color:#111;margin-bottom:6px}
+.gate-sub{font-size:13px;color:#777;margin-bottom:28px;line-height:1.7}
+.gate-input{
+  width:100%;padding:13px 16px;font-size:16px;font-weight:700;
+  letter-spacing:.18em;text-align:center;text-transform:uppercase;
+  border:2px solid #ddd;border-radius:10px;outline:none;
+  font-family:'Courier New',monospace;color:#111;
+  transition:border-color .2s;margin-bottom:14px;
+}
+.gate-input:focus{border-color:#185FA5}
+.gate-input.shake{animation:shake .35s ease;border-color:#E24B4A}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.btn-gate{
+  width:100%;padding:13px;background:#111;color:#fff;
+  border:none;border-radius:10px;font-size:15px;font-weight:700;
+  cursor:pointer;transition:background .18s;
+}
+.btn-gate:hover{background:#333}
+.btn-gate:disabled{background:#bbb;cursor:not-allowed}
+.gate-msg{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;display:none;line-height:1.5}
+.gate-msg.err{background:#FCEBEB;border:1px solid #f5c0c0;color:#A32D2D}
+.gate-msg.ok{background:#EAF3DE;border:1px solid #b8d990;color:#27500A}
+.gate-msg.checking{background:#E6F1FB;border:1px solid #aed0f5;color:#185FA5}
+.gate-footer{margin-top:18px;font-size:11px;color:#bbb;line-height:1.8}
+.gate-footer a{color:#999;cursor:pointer;text-decoration:underline}
+.ip-row{margin-top:10px;font-size:11px;color:#ccc;display:flex;justify-content:center;gap:5px}
+
+/* ════════════════════════════════════════
+   PAGE: ADMIN
+   ════════════════════════════════════════ */
+#page-admin-login{
+  min-height:100vh;
+  background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+#page-admin-login.active{display:flex}
+.admin-login-card{
+  background:#fff;border-radius:20px;padding:40px 36px;
+  width:100%;max-width:380px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.admin-login-card h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.admin-login-card p{font-size:12px;color:#888;margin-bottom:24px}
+.admin-login-card input{
+  width:100%;padding:10px 14px;border:1px solid #ddd;
+  border-radius:8px;font-size:14px;outline:none;margin-bottom:12px;
+}
+.admin-login-card input:focus{border-color:#555}
+.btn-admin-login{
+  width:100%;padding:11px;background:#302b63;color:#fff;
+  border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;
+}
+.btn-admin-login:hover{background:#413a8c}
+.admin-login-err{color:#c0392b;font-size:12px;margin-top:8px}
+.admin-login-back{margin-top:14px;font-size:12px;color:#aaa;cursor:pointer;text-decoration:underline}
+
+/* ── Admin Dashboard ── */
+#page-admin{background:#F0EEE8;min-height:100vh;display:none}
+#page-admin.active{display:block}
+.adash{max-width:1020px;margin:0 auto;padding:24px 20px 48px}
+.adash-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.adash-header h1{font-size:20px;font-weight:700}
+.adash-header p{font-size:12px;color:#666;margin-top:3px}
+.adash-actions{display:flex;gap:8px}
+.btn-sm{padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;border:1px solid #ddd;background:#fff;color:#555}
+.btn-sm:hover{background:#f5f5f5}
+.btn-sm.danger{background:#FCEBEB;color:#A32D2D;border-color:#f5c0c0}
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:#fff;border:1px solid #e8e6e1;border-radius:12px;padding:16px}
+.stat-card .s-lbl{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-card .s-val{font-size:28px;font-weight:700;line-height:1}
+.stat-card .s-sub{font-size:11px;color:#999;margin-top:4px}
+.sc-blue{border-top:3px solid #185FA5}
+.sc-green{border-top:3px solid #3B6D11}
+.sc-amber{border-top:3px solid #854F0B}
+.sc-red{border-top:3px solid #A32D2D}
+/* Panel */
+.apanel{background:#fff;border:1px solid #e8e6e1;border-radius:12px;padding:20px;margin-bottom:20px}
+.apanel-title{font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+/* Generate form */
+.gen-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.gen-field{display:flex;flex-direction:column;gap:4px}
+.gen-field label{font-size:12px;color:#555;font-weight:500}
+.gen-field input,.gen-field select{padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none;min-width:140px}
+.gen-field input:focus,.gen-field select:focus{border-color:#888}
+.btn-gen{padding:8px 20px;background:#185FA5;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;height:37px}
+.btn-gen:hover{background:#1a6fbf}
+.gen-result{margin-top:12px;padding:12px 14px;background:#EAF3DE;border:1px solid #b8d990;border-radius:8px;font-size:13px;display:none}
+.gen-result code{font-size:15px;font-weight:700;color:#27500A;font-family:'Courier New',monospace;letter-spacing:.08em}
+.copy-btn{margin-left:8px;padding:3px 10px;background:#fff;border:1px solid #aaa;border-radius:5px;cursor:pointer;font-size:11px}
+/* Table */
+.tbl-wrap{overflow-x:auto}
+table.atbl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.atbl th{font-size:11px;font-weight:600;color:#888;text-align:left;padding:8px 10px;border-bottom:2px solid #eee;white-space:nowrap;background:#fafafa}
+table.atbl td{padding:8px 10px;border-bottom:1px solid #f2f2f2;color:#222;vertical-align:middle}
+table.atbl tr:last-child td{border-bottom:none}
+table.atbl tr:hover td{background:#fafafa}
+/* Pill */
+.pill{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;white-space:nowrap}
+.p-active{background:#EAF3DE;color:#3B6D11}
+.p-unused{background:#F1EFE8;color:#5F5E5A}
+.p-revoked{background:#FCEBEB;color:#A32D2D}
+.p-expired{background:#FAEEDA;color:#854F0B}
+/* Action btns */
+.btn-tbl{padding:3px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600;border:1px solid}
+.btn-revoke{background:#FAEEDA;color:#854F0B;border-color:#f5d89a}
+.btn-revoke:hover{background:#fae3b8}
+.btn-reactivate{background:#E6F1FB;color:#185FA5;border-color:#aed0f5}
+.btn-reactivate:hover{background:#d0e6f8}
+.btn-del{background:#FCEBEB;color:#A32D2D;border-color:#f5c0c0}
+.btn-del:hover{background:#fad9d9}
+/* Filter */
+.filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.fbtn{padding:5px 14px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-size:12px;color:#666}
+.fbtn.on{background:#111;color:#fff;border-color:#111}
+/* Log */
+.log-wrap{max-height:260px;overflow-y:auto}
+.log-entry{padding:7px 12px;border-radius:6px;font-size:12px;margin-bottom:3px;display:flex;gap:10px}
+.log-time{color:#aaa;flex-shrink:0;font-family:'Courier New',monospace;font-size:11px}
+.log-text{color:#333;line-height:1.5}
+.log-ok{background:#EAF3DE}.log-fail{background:#FCEBEB}.log-info{background:#E6F1FB}.log-warn{background:#FAEEDA}
+/* IP cell */
+.ip-cell{font-family:'Courier New',monospace;font-size:12px}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal-box{background:#fff;border-radius:14px;padding:28px;max-width:400px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.modal-box h3{font-size:16px;font-weight:700;margin-bottom:8px}
+.modal-box p{font-size:13px;color:#555;margin-bottom:20px;line-height:1.6}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.btn-cancel{padding:8px 18px;background:#f5f5f5;border:1px solid #ddd;border-radius:8px;cursor:pointer;font-size:13px}
+.btn-confirm{padding:8px 18px;background:#A32D2D;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#111;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+.empty-state{text-align:center;padding:32px;color:#bbb;font-size:13px}
+
+/* ════════════════════════════════════════
+   PAGE: KALKULATOR (original styles)
+   ════════════════════════════════════════ */
+#page-calc{background:#F7F6F3;min-height:100vh;display:none}
+#page-calc.active{display:block}
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#F7F6F3;color:#1a1a1a;font-size:14px}
+  .app{max-width:920px;margin:0 auto;padding:24px 20px 48px}
+  .header{margin-bottom:24px}
+  .header h1{font-size:20px;font-weight:600;color:#111}
+  .header p{font-size:13px;color:#666;margin-top:4px}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+  .b-blue{background:#E6F1FB;color:#185FA5}
+  .b-purple{background:#EEEDFE;color:#3C3489}
+  .b-amber{background:#FAEEDA;color:#854F0B}
+  .b-red{background:#FCEBEB;color:#A32D2D}
+  .b-green{background:#EAF3DE;color:#3B6D11}
+
+  /* Layout */
+  .layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+  @media(max-width:720px){.layout{grid-template-columns:1fr}}
+
+  /* Panel */
+  .panel{background:#fff;border:1px solid #e8e6e1;border-radius:12px;padding:20px}
+  .panel-title{font-size:13px;font-weight:600;color:#111;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .panel-title svg{width:16px;height:16px;flex-shrink:0}
+
+  /* Form */
+  .sec{margin-bottom:16px}
+  .sec-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .field{margin-bottom:10px}
+  .field label{display:block;font-size:12px;color:#555;margin-bottom:4px;font-weight:500}
+  .field input,.field select{width:100%;padding:7px 10px;font-size:13px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#111;outline:none;transition:border-color .15s}
+  .field input:focus,.field select:focus{border-color:#888}
+  .field .hint{font-size:11px;color:#999;margin-top:3px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .divider{border:none;border-top:1px solid #eee;margin:14px 0}
+  .platform-row{display:flex;gap:6px;margin-bottom:14px}
+  .ptog{flex:1;padding:8px 6px;font-size:12px;font-weight:500;border:1px solid #ddd;border-radius:8px;cursor:pointer;background:#fff;color:#666;text-align:center;transition:all .15s}
+  .ptog.on{background:#111;color:#fff;border-color:#111}
+  .info-bar{background:#FEF9EC;border:1px solid #F5CC6A;border-radius:8px;padding:10px 12px;font-size:12px;color:#7A5100;margin-bottom:12px;line-height:1.6}
+  .info-bar strong{color:#5C3A00}
+
+  /* Tabs */
+  .tabs{display:flex;gap:2px;border-bottom:1px solid #e8e6e1;margin-bottom:20px}
+  .tab{padding:8px 16px;font-size:13px;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-weight:500}
+  .tab.on{color:#111;border-bottom-color:#111}
+  .tab:hover:not(.on){color:#444}
+  .tab-content{display:none}.tab-content.on{display:block}
+
+  /* Cards */
+  .cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+  .cards2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+  @media(max-width:580px){.cards4{grid-template-columns:repeat(2,1fr)}}
+  .mcard{border-radius:10px;padding:12px 14px}
+  .mcard .lbl{font-size:11px;font-weight:500;margin-bottom:4px}
+  .mcard .val{font-size:22px;font-weight:600;line-height:1.1}
+  .mcard .sub{font-size:11px;margin-top:4px;opacity:.75}
+  .mc-neutral{background:#F1EFE8;color:#2C2C2A}.mc-neutral .lbl{color:#5F5E5A}
+  .mc-ok{background:#EAF3DE;color:#27500A}.mc-ok .lbl{color:#3B6D11}
+  .mc-warn{background:#FAEEDA;color:#633806}.mc-warn .lbl{color:#854F0B}
+  .mc-danger{background:#FCEBEB;color:#501313}.mc-danger .lbl{color:#A32D2D}
+  .mc-info{background:#E6F1FB;color:#0C447C}.mc-info .lbl{color:#185FA5}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:12px}
+  th{font-size:11px;font-weight:600;color:#888;text-align:left;padding:7px 8px;border-bottom:1px solid #eee;white-space:nowrap}
+  td{padding:7px 8px;border-bottom:1px solid #f2f2f2;color:#222;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .tr{text-align:right;white-space:nowrap}
+  .tc{text-align:center}
+  .tfooter td{border-top:2px solid #ddd;border-bottom:none;font-weight:600;padding-top:9px}
+  .tprofit td{font-weight:700;font-size:13px}
+  tr.highlight td{background:#F7F6F3}
+
+  /* Status pill */
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+  .pill-ok{background:#EAF3DE;color:#3B6D11}
+  .pill-warn{background:#FAEEDA;color:#854F0B}
+  .pill-danger{background:#FCEBEB;color:#A32D2D}
+  .pill-info{background:#E6F1FB;color:#185FA5}
+
+  /* Reco */
+  .reco-box{background:#F7F6F3;border-radius:10px;padding:14px 16px;margin-bottom:12px}
+  .reco-item{display:flex;gap:10px;margin-bottom:9px;align-items:flex-start;font-size:13px;line-height:1.6}
+  .reco-item:last-child{margin-bottom:0}
+  .reco-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+  .icon-ok{color:#3B6D11}.icon-warn{color:#854F0B}.icon-danger{color:#A32D2D}.icon-info{color:#185FA5}
+
+  /* Scenario */
+  .scen3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  @media(max-width:580px){.scen3{grid-template-columns:1fr}}
+  .sc-card{border:1px solid #ddd;border-radius:10px;padding:14px;background:#fff}
+  .sc-card.sc-best{border-color:#639922;background:#F8FCF0}
+  .sc-card.sc-worst{border-color:#E24B4A;background:#FFF8F8}
+  .sc-title{font-size:12px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .sc-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f0f0f0}
+  .sc-row:last-child{border-bottom:none;font-weight:600;font-size:13px;padding-top:8px}
+
+  /* Formula box */
+  .formula-box{background:#F1EFE8;border:1px solid #D3D1C7;border-radius:8px;padding:12px 14px;margin-bottom:12px}
+  .formula-box .ftitle{font-size:11px;font-weight:600;color:#5F5E5A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+  .formula-box .fline{font-size:12px;color:#2C2C2A;margin-bottom:3px;font-family:'Courier New',monospace}
+
+  /* Divider labeled */
+  .divlabel{display:flex;align-items:center;gap:10px;margin:18px 0 14px;color:#999;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .divlabel::before,.divlabel::after{content:'';flex:1;border-top:1px solid #eee}
+
+  /* Compare */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+
+  /* Note */
+  .note{font-size:11px;color:#999;margin-top:6px;line-height:1.6;font-style:italic}
+
+  /* Platform badge in result */
+  .plat-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .plat-badge{font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
+  .plat-shopee{background:#FF5722;color:#fff}
+  .plat-tiktok{background:#010101;color:#fff}
+
+  /* Print / download */
+  @media print{
+    body{background:#fff}
+    .app{max-width:100%;padding:10px}
+    .layout{grid-template-columns:280px 1fr}
+    .panel{border:1px solid #ccc;page-break-inside:avoid}
+  }
+
+  /* Sticky calc note */
+  .sticky-note{position:sticky;bottom:0;background:#fff;border-top:1px solid #eee;padding:10px 16px;font-size:11px;color:#888;display:flex;justify-content:space-between;align-items:center;margin-top:16px;border-radius:0 0 12px 12px}
+
+</style>
+</head>
+<body>
+
+<!-- ════════ PAGE 1: TOKEN GATE ════════ -->
+<div id="page-gate" class="page active">
+  <div class="gate-card">
+    <div class="gate-logo">🧮</div>
+    <div class="gate-title">Kalkulator ROAS Mei 2026</div>
+    <div class="gate-sub">
+      Masukkan token aktivasi untuk menggunakan kalkulator.<br>
+      <strong>Token dikunci ke IP pertama yang menggunakannya.</strong>
+    </div>
+    <input type="text" id="gate-token-input" class="gate-input"
+      placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="20"
+      autocomplete="off" spellcheck="false"
+      oninput="gateFormatToken(this)"
+      onkeydown="if(event.key==='Enter')gateSubmit()">
+    <button class="btn-gate" id="gate-submit-btn" onclick="gateSubmit()">Aktivasi &amp; Masuk →</button>
+    <div class="gate-msg" id="gate-msg"></div>
+    <div class="gate-footer">
+      Belum punya token? Hubungi admin.<br>
+      <a onclick="showAdminLogin()">Masuk sebagai Admin</a>
+    </div>
+    <div class="ip-row">🌐 <span id="gate-ip-display">Mendeteksi IP...</span></div>
+  </div>
+</div>
+
+<!-- ════════ PAGE 2: ADMIN LOGIN ════════ -->
+<div id="page-admin-login" class="page">
+  <div class="admin-login-card">
+    <div style="font-size:32px;margin-bottom:12px">🔐</div>
+    <h2>Admin Panel</h2>
+    <p>Token Generator &amp; Monitor Aktivasi</p>
+    <input type="password" id="admin-pass-input" placeholder="Password admin..."
+      autocomplete="off" onkeydown="if(event.key==='Enter')adminDoLogin()">
+    <button class="btn-admin-login" onclick="adminDoLogin()">Masuk ke Dashboard</button>
+    <div class="admin-login-err" id="admin-login-err"></div>
+    <div class="admin-login-back" onclick="showPage('page-gate')">← Kembali</div>
+  </div>
+</div>
+
+<!-- ════════ PAGE 3: ADMIN DASHBOARD ════════ -->
+<div id="page-admin" class="page">
+  <div class="adash">
+    <div class="adash-header">
+      <div>
+        <h1>🔑 Token Manager</h1>
+        <p>Kelola &amp; pantau aktivasi pengguna Kalkulator ROAS Mei 2026</p>
+      </div>
+      <div class="adash-actions">
+        <button class="btn-sm" onclick="adminLogout()">⬅ Logout Admin</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card sc-blue"><div class="s-lbl">Total Token</div><div class="s-val" id="s-total">0</div><div class="s-sub">dibuat</div></div>
+      <div class="stat-card sc-green"><div class="s-lbl">Aktif</div><div class="s-val" id="s-active">0</div><div class="s-sub">terpakai</div></div>
+      <div class="stat-card sc-amber"><div class="s-lbl">Belum Dipakai</div><div class="s-val" id="s-unused">0</div><div class="s-sub">menunggu aktivasi</div></div>
+      <div class="stat-card sc-red"><div class="s-lbl">Dicabut/Expired</div><div class="s-val" id="s-revoked">0</div><div class="s-sub">tidak aktif</div></div>
+    </div>
+
+    <!-- Generate -->
+    <div class="apanel">
+      <div class="apanel-title">⚡ Generate Token Baru</div>
+      <div class="gen-row">
+        <div class="gen-field">
+          <label>Nama / Label Pengguna</label>
+          <input type="text" id="g-name" placeholder="Contoh: Toko Budi, Client A..." maxlength="40">
+        </div>
+        <div class="gen-field">
+          <label>Masa Aktif</label>
+          <select id="g-expiry">
+            <option value="7">7 hari</option>
+            <option value="14">14 hari</option>
+            <option value="30" selected>30 hari</option>
+            <option value="60">60 hari</option>
+            <option value="90">90 hari</option>
+            <option value="365">1 tahun</option>
+            <option value="0">Tidak terbatas</option>
+          </select>
+        </div>
+        <div class="gen-field">
+          <label>Jumlah</label>
+          <select id="g-qty">
+            <option value="1">1 token</option>
+            <option value="3">3 token</option>
+            <option value="5">5 token</option>
+            <option value="10">10 token</option>
+          </select>
+        </div>
+        <button class="btn-gen" onclick="adminGenerateTokens()">➕ Generate</button>
+      </div>
+      <div class="gen-result" id="gen-result">
+        Token dibuat: <code id="gen-result-code"></code>
+        <button class="copy-btn" onclick="copyGenResult()">📋 Copy</button>
+      </div>
+    </div>
+
+    <!-- Token List -->
+    <div class="apanel">
+      <div class="apanel-title">
+        <span>📋 Daftar Token</span>
+        <button class="btn-sm danger" onclick="confirmClearAll()">🗑 Hapus Semua</button>
+      </div>
+      <div class="filter-row">
+        <button class="fbtn on" onclick="adminSetFilter('all',this)">Semua</button>
+        <button class="fbtn" onclick="adminSetFilter('unused',this)">Belum Dipakai</button>
+        <button class="fbtn" onclick="adminSetFilter('active',this)">Aktif</button>
+        <button class="fbtn" onclick="adminSetFilter('revoked',this)">Dicabut</button>
+        <button class="fbtn" onclick="adminSetFilter('expired',this)">Expired</button>
+      </div>
+      <div class="tbl-wrap">
+        <table class="atbl">
+          <thead>
+            <tr>
+              <th>#</th><th>Token</th><th>Nama / Label</th><th>Status</th>
+              <th>IP Terdaftar</th><th>Dibuat</th><th>Exp</th>
+              <th>Akses Terakhir</th><th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="token-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="apanel">
+      <div class="apanel-title">
+        <span>📜 Log Aktivitas</span>
+        <button onclick="clearLogs()" style="font-size:11px;color:#aaa;background:none;border:none;cursor:pointer">Hapus log</button>
+      </div>
+      <div class="log-wrap" id="log-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PAGE 4: KALKULATOR ════════ -->
+<div id="page-calc" class="page">
+
+<div class="app">
+  <div class="header">
+    <h1>🧮 Kalkulator ROAS & Profitabilitas E-commerce</h1>
+    <p>Struktur biaya terbaru Shopee (Jan 2026) &amp; TikTok Shop (Mei 2026)</p>
+    <div class="badges">
+      <span class="badge b-blue">Shopee Jan 2026</span>
+      <span class="badge b-purple">TikTok Shop 1 Mei 2026</span>
+      <span class="badge b-amber">TikTok 18 Mei 2026 — Cap Dinamis Rp650rb</span>
+      <span class="badge b-green">Platform Commission Savings</span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT: INPUT -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3"/><path d="M9 15h3l8.5-8.5a1.5 1.5 0 00-3-3L9 12v3"/></svg>
+          Input Data Seller
+        </div>
+
+        <div class="sec-label">Platform</div>
+        <div class="platform-row">
+          <button class="ptog on" id="ptog-shopee" onclick="setPlat('shopee')">🛍 Shopee</button>
+          <button class="ptog" id="ptog-tiktok" onclick="setPlat('tiktok')">🎵 TikTok Shop</button>
+          <button class="ptog" id="ptog-both" onclick="setPlat('both')">⚡ Keduanya</button>
+        </div>
+
+        <div class="sec-label">Produk & Biaya Dasar</div>
+        <div class="row2">
+          <div class="field">
+            <label>HPP per unit (Rp)</label>
+            <input type="number" id="i_hpp" value="50000" min="0" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Harga Jual (Rp)</label>
+            <input type="number" id="i_harga" value="120000" min="1" oninput="calc()">
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Packaging per unit (Rp)</label>
+            <input type="number" id="i_pkg" value="5000" min="0" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Target unit / bulan</label>
+            <input type="number" id="i_unit" value="100" min="1" oninput="calc()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Kategori Produk</label>
+          <select id="i_kat" onchange="onKatChange()">
+            <option value="fashion">Fashion / Pakaian / Aksesori</option>
+            <option value="beauty">Kecantikan & Skincare</option>
+            <option value="elektronik">Elektronik & Gadget</option>
+            <option value="makanan">Makanan & Minuman (FMCG)</option>
+            <option value="rumah">Peralatan Rumah Tangga</option>
+            <option value="olahraga">Olahraga & Outdoor</option>
+            <option value="bayi">Produk Bayi & Anak</option>
+            <option value="otomotif">Otomotif & Aksesoris</option>
+          </select>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Jenis Toko</label>
+            <select id="i_jenis" onchange="calc()">
+              <option value="regular">Regular / Non-Star</option>
+              <option value="star">Star Seller</option>
+              <option value="mall">Mall / Official</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Biaya SDM/Operasional</label>
+            <input type="number" id="i_ops" value="0" min="0" oninput="calc()" placeholder="per unit, Rp">
+            <div class="hint">Opsional, per unit</div>
+          </div>
+        </div>
+
+        <hr class="divider">
+        <div class="sec-label">Biaya Iklan</div>
+        <div class="row2">
+          <div class="field">
+            <label>Budget Iklan / bulan (Rp)</label>
+            <input type="number" id="i_iklan" value="500000" min="0" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Estimasi Impressi / bulan</label>
+            <input type="number" id="i_impr" value="50000" min="1" oninput="calc()">
+            <div class="hint">Untuk hitung CPM & CPC estimasi</div>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Estimasi CTR (%)</label>
+            <input type="number" id="i_ctr" value="2" min="0.1" max="100" step="0.1" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Estimasi Conv. Rate (%)</label>
+            <input type="number" id="i_cvr" value="3" min="0.1" max="100" step="0.1" oninput="calc()">
+            <div class="hint">% klik jadi order</div>
+          </div>
+        </div>
+
+        <hr class="divider">
+        <div class="sec-label">Biaya Tambahan</div>
+        <div class="field">
+          <label>Komisi Afiliasi Kreator (%)</label>
+          <select id="i_aff" onchange="calc()">
+            <option value="0">Tidak pakai afiliasi</option>
+            <option value="5">5% (standar)</option>
+            <option value="8">8%</option>
+            <option value="10">10%</option>
+            <option value="15">15% (kreator besar)</option>
+            <option value="20">20% (top creator)</option>
+          </select>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Buffer Retur & Refund</label>
+            <select id="i_retur" onchange="calc()">
+              <option value="1">1% (elektronik/logam)</option>
+              <option value="2">2%</option>
+              <option value="3" selected>3% (umum)</option>
+              <option value="5">5% (fashion)</option>
+              <option value="8">8% (fashion premium)</option>
+              <option value="10">10% (risiko tinggi)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Subsidi Ongkir Seller</label>
+            <select id="i_ongkir" onchange="calc()">
+              <option value="0">Tidak ada</option>
+              <option value="5000">Rp5.000/order</option>
+              <option value="10000">Rp10.000/order</option>
+              <option value="15000">Rp15.000/order</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TikTok specific -->
+        <div id="tiktok-section" style="display:none">
+          <hr class="divider">
+          <div class="sec-label">Opsi TikTok Shop (Mei 2026)</div>
+          <div class="info-bar">
+            <strong>⚠️ Cap Komisi Dinamis mulai 18 Mei 2026:</strong><br>
+            Naik dari Rp40.000 → <strong>Rp650.000/item</strong>. Sangat berdampak untuk produk >Rp1 juta.
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Program GMV Max?</label>
+              <select id="i_gmvmax" onchange="calc()">
+                <option value="0">Tidak</option>
+                <option value="1">Ya (spend ≥3% GMV)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Growth Xtra Program?</label>
+              <select id="i_growthxtra" onchange="calc()">
+                <option value="0">Tidak</option>
+                <option value="1">Ya</option>
+              </select>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Biaya Logistik (Mei 2026)</label>
+              <select id="i_logistik" onchange="calc()">
+                <option value="100">Rp100 (sangat ringan)</option>
+                <option value="500">Rp500 (&lt;500g)</option>
+                <option value="1000" selected>Rp1.000 (~1kg)</option>
+                <option value="2000">Rp2.000 (~2kg)</option>
+                <option value="3000">Rp3.000 (&gt;3kg)</option>
+              </select>
+              <div class="hint">Berlaku 1 Mei 2026, berdasarkan berat & jarak</div>
+            </div>
+            <div class="field">
+              <label>Produk Pre-Order?</label>
+              <select id="i_preorder" onchange="calc()">
+                <option value="0">Tidak</option>
+                <option value="1">Ya (+3% biaya layanan)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shopee specific -->
+        <div id="shopee-section">
+          <hr class="divider">
+          <div class="sec-label">Opsi Shopee (Jan 2026)</div>
+          <div class="row2">
+            <div class="field">
+              <label>SPayLater digunakan?</label>
+              <select id="i_spaylater" onchange="calc()">
+                <option value="0">Tidak / minimal</option>
+                <option value="1">Ya (~1% dari transaksi)</option>
+                <option value="2">Ya (~2% dari transaksi)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Produk Pre-Order (Shopee)?</label>
+              <select id="i_s_preorder" onchange="calc()">
+                <option value="0">Tidak</option>
+                <option value="1">Ya (+3%)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end panel left -->
+    </div>
+
+    <!-- RIGHT: OUTPUT -->
+    <div>
+      <div class="panel">
+        <div class="tabs">
+          <button class="tab on" onclick="switchTab('ringkasan')">Ringkasan</button>
+          <button class="tab" onclick="switchTab('breakdown')">Breakdown Biaya</button>
+          <button class="tab" onclick="switchTab('iklan')">Metrik Iklan</button>
+          <button class="tab" onclick="switchTab('skenario')">Simulasi</button>
+        </div>
+
+        <!-- TAB: RINGKASAN -->
+        <div class="tab-content on" id="tc-ringkasan">
+          <div id="r-ringkasan"></div>
+        </div>
+
+        <!-- TAB: BREAKDOWN -->
+        <div class="tab-content" id="tc-breakdown">
+          <div id="r-breakdown"></div>
+        </div>
+
+        <!-- TAB: IKLAN -->
+        <div class="tab-content" id="tc-iklan">
+          <div id="r-iklan"></div>
+        </div>
+
+        <!-- TAB: SKENARIO -->
+        <div class="tab-content" id="tc-skenario">
+          <div id="r-skenario"></div>
+        </div>
+
+        <div class="sticky-note">
+          <span id="last-updated">Terakhir dihitung: —</span>
+          <span>Struktur biaya: Shopee Jan 2026 · TikTok Shop Mei 2026</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── HELPERS ─────────────────────────────────────────────────────────────────
+const fmt = n => Math.round(n).toLocaleString('id-ID');
+const fmtR = (n,d=2) => parseFloat(n).toFixed(d);
+const pct = n => (parseFloat(n)*100).toFixed(1)+'%';
+const pctN = n => (n*100).toFixed(1)+'%';
+const g = id => document.getElementById(id);
+const v = id => parseFloat(g(id).value)||0;
+const vi = id => parseInt(g(id).value)||0;
+
+// ── TARIF PLATFORM ───────────────────────────────────────────────────────────
+// Shopee: biaya admin per kategori (biaya layanan/komisi)
+// Semua tarif berlaku Jan 2026
+const SHOPEE_TARIF = {
+  fashion:   { admin: 0.10, bench: [0.15, 0.30], nama: 'Fashion / Pakaian' },
+  beauty:    { admin: 0.07, bench: [0.20, 0.40], nama: 'Kecantikan & Skincare' },
+  elektronik:{ admin: 0.03, bench: [0.05, 0.15], nama: 'Elektronik & Gadget' },
+  makanan:   { admin: 0.10, bench: [0.10, 0.20], nama: 'Makanan & FMCG' },
+  rumah:     { admin: 0.06, bench: [0.12, 0.25], nama: 'Peralatan Rumah' },
+  olahraga:  { admin: 0.07, bench: [0.12, 0.25], nama: 'Olahraga & Outdoor' },
+  bayi:      { admin: 0.07, bench: [0.15, 0.30], nama: 'Produk Bayi & Anak' },
+  otomotif:  { admin: 0.05, bench: [0.10, 0.20], nama: 'Otomotif & Aksesoris' },
+};
+
+// TikTok: komisi platform (efektif setelah diskon) + komisi dinamis
+// komisi: tarif efektif (sudah diperhitungkan diskon 20% untuk kategori 10%)
+const TIKTOK_TARIF = {
+  fashion:   { komisi: 0.08, dinamis: 0.06, bench: [0.15, 0.30], nama: 'Fashion / Aksesori' },
+  beauty:    { komisi: 0.08, dinamis: 0.05, bench: [0.20, 0.40], nama: 'Kecantikan & Skincare' },
+  elektronik:{ komisi: 0.05, dinamis: 0.04, bench: [0.05, 0.15], nama: 'Elektronik & Gadget' },
+  makanan:   { komisi: 0.07, dinamis: 0.05, bench: [0.10, 0.20], nama: 'Makanan & FMCG' },
+  rumah:     { komisi: 0.075, dinamis: 0.05, bench: [0.12, 0.25], nama: 'Peralatan Rumah' },
+  olahraga:  { komisi: 0.09, dinamis: 0.06, bench: [0.12, 0.25], nama: 'Olahraga & Outdoor' },
+  bayi:      { komisi: 0.07, dinamis: 0.05, bench: [0.15, 0.30], nama: 'Produk Bayi & Anak' },
+  otomotif:  { komisi: 0.075, dinamis: 0.05, bench: [0.10, 0.20], nama: 'Otomotif & Aksesoris' },
+};
+
+// ── PLATFORM STATE ───────────────────────────────────────────────────────────
+let platform = 'shopee';
+
+function setPlat(p) {
+  platform = p;
+  ['shopee','tiktok','both'].forEach(x => g('ptog-'+x).classList.toggle('on', x===p));
+  g('tiktok-section').style.display = (p==='tiktok'||p==='both') ? 'block' : 'none';
+  g('shopee-section').style.display = (p==='shopee'||p==='both') ? 'block' : 'none';
+  calc();
+}
+
+function onKatChange() {
+  const k = g('i_kat').value;
+  // Auto-set retur rate sesuai kategori
+  const rekomRetur = { fashion:'5', beauty:'3', elektronik:'1', makanan:'2', rumah:'3', olahraga:'3', bayi:'3', otomotif:'2' };
+  if(rekomRetur[k]) g('i_retur').value = rekomRetur[k];
+  calc();
+}
+
+// ── KALKULASI SHOPEE ─────────────────────────────────────────────────────────
+/**
+ * FORMULA SHOPEE (Jan 2026):
+ *
+ * Total Biaya per unit =
+ *   HPP
+ * + Packaging
+ * + Biaya Admin (% dari harga jual)  ← biaya layanan Shopee
+ * + Biaya Proses Pesanan (Rp1.250 flat)
+ * + Biaya SPayLater (% dari harga jual, jika aktif)
+ * + Biaya Pre-Order (3% dari harga jual, jika aktif)
+ * + Komisi Afiliasi (% dari harga jual, jika aktif)
+ * + Buffer Retur (% dari harga jual) ← bukan dari profit, tapi dari revenue
+ * + Subsidi Ongkir (Rp flat per order)
+ * + Biaya Iklan per unit (total budget / target unit)
+ * + Biaya SDM/Operasional per unit
+ *
+ * Catatan:
+ * - Mall: tambah 2% extra admin
+ * - Biaya proses Rp1.250 dihitung per transaksi selesai
+ * - Retur dihitung sebagai % harga jual (cadangan untuk order yang dikembalikan)
+ */
+function calcShopee(harga, hpp, pkg, unit, iklan, impr, ctr, cvr, aff_pct, retur_pct, ongkir, ops, spaylater_pct, s_preorder) {
+  const kat = g('i_kat').value;
+  const t = SHOPEE_TARIF[kat] || SHOPEE_TARIF.fashion;
+  const jenis = g('i_jenis').value;
+  const mallExtra = jenis === 'mall' ? 0.02 : 0;
+  const adminRate = t.admin + mallExtra;
+
+  // Komponen biaya (per unit)
+  const c_hpp     = hpp;
+  const c_pkg     = pkg;
+  const c_admin   = harga * adminRate;                    // biaya layanan/komisi
+  const c_proses  = 1250;                                  // flat per transaksi
+  const c_spay    = harga * (spaylater_pct / 100);         // SPayLater fee
+  const c_preord  = s_preorder ? harga * 0.03 : 0;         // pre-order fee
+  const c_aff     = harga * (aff_pct / 100);               // komisi afiliasi
+  const c_retur   = harga * (retur_pct / 100);             // buffer retur (% harga jual)
+  const c_ongkir  = ongkir;                                // subsidi ongkir flat
+  const c_iklan   = unit > 0 ? iklan / unit : 0;           // iklan dialokasikan per unit terjual
+  const c_ops     = ops;                                   // SDM/operasional
+
+  const total_biaya = c_hpp + c_pkg + c_admin + c_proses + c_spay + c_preord + c_aff + c_retur + c_ongkir + c_iklan + c_ops;
+
+  const profit_unit = harga - total_biaya;
+  const gross_margin = harga > 0 ? (harga - hpp) / harga : 0;        // sebelum biaya platform & iklan
+  const net_margin   = harga > 0 ? profit_unit / harga : 0;            // setelah semua biaya
+
+  // Revenue & profit bulanan
+  const revenue      = harga * unit;
+  const total_profit = profit_unit * unit;
+
+  // ROAS (Return on Ad Spend)
+  // Formula: Total Revenue ÷ Total Budget Iklan
+  // Break-even ROAS: ROAS minimal agar profit_unit = 0
+  // Jika profit_unit = 0 → harga = total_biaya
+  // → revenue = total_biaya * unit
+  // → revenue / iklan = total_biaya * unit / iklan
+  const roas = iklan > 0 ? revenue / iklan : 0;
+  const roas_breakeven = iklan > 0 ? (total_biaya * unit) / iklan : 0;
+  // ROAS ideal = target ROAS untuk net margin bench[0] minimal
+  const roas_ideal = iklan > 0 ? (harga / (harga - (total_biaya - c_iklan) - harga * t.bench[0])) * (harga * unit / iklan) : 0;
+
+  // ACOS (Advertising Cost of Sales) = Biaya Iklan / Revenue × 100%
+  const acos = revenue > 0 ? (iklan / revenue) * 100 : 0;
+  // Target ACOS untuk break-even dengan margin bench[0]
+  const acos_target = (1 - (total_biaya - c_iklan) / harga - t.bench[0]) * 100;
+
+  // CPC estimasi = budget / (impr * ctr/100)
+  const klik_estimasi = impr * (ctr / 100);
+  const cpc_estimasi  = klik_estimasi > 0 ? iklan / klik_estimasi : 0;
+  // Order dari iklan (estimasi)
+  const order_dari_iklan = klik_estimasi * (cvr / 100);
+  // Break-even CPC = profit_unit (tanpa iklan) / (CVR/100)
+  // = profit maksimum per klik yang masih impas
+  const profit_tanpa_iklan = harga - (total_biaya - c_iklan);
+  const breakeven_cpc = cvr > 0 ? (profit_tanpa_iklan * cvr / 100) : 0;
+  // CPO (cost per order dari iklan)
+  const cpo = order_dari_iklan > 0 ? iklan / order_dari_iklan : 0;
+  // CPM = budget / (impr/1000)
+  const cpm = impr > 0 ? (iklan / impr) * 1000 : 0;
+
+  // Harga jual minimum (break-even, profit = 0)
+  // total_biaya termasuk iklan/unit, admin (% harga), retur (% harga), dll
+  // Harga min harus memenuhi: harga = hpp + pkg + proses + spay + preord + aff_val + ongkir + iklan/unit + ops
+  //                                   + harga*(admin + spay_rate + preord_rate + aff_rate + retur_rate)
+  // → harga*(1 - rate_total) = hpp + pkg + proses + ongkir + iklan/unit + ops
+  const rate_total = adminRate + (spaylater_pct/100) + (s_preorder?0.03:0) + (aff_pct/100) + (retur_pct/100);
+  const fixed_cost  = hpp + pkg + 1250 + ongkir + c_iklan + ops;
+  const harga_min   = rate_total < 1 ? fixed_cost / (1 - rate_total) : 0;
+
+  // Harga ideal = harga min + target margin bench[0]
+  const harga_ideal = rate_total + t.bench[0] < 1 ? fixed_cost / (1 - rate_total - t.bench[0]) : harga_min;
+
+  // Efektif potongan platform (admin + proses + spay + preord) sebagai % harga jual
+  const eff_platform_rate = (c_admin + c_proses + c_spay + c_preord) / harga;
+
+  return {
+    // Komponen biaya
+    c_hpp, c_pkg, c_admin, c_proses, c_spay, c_preord, c_aff, c_retur, c_ongkir, c_iklan, c_ops,
+    total_biaya, profit_unit, gross_margin, net_margin,
+    revenue, total_profit,
+    roas, roas_breakeven, roas_ideal,
+    acos, acos_target,
+    cpc_estimasi, klik_estimasi, order_dari_iklan, breakeven_cpc, cpo, cpm,
+    harga_min, harga_ideal,
+    eff_platform_rate,
+    bench: t.bench, adminRate, mallExtra,
+    nama_kat: t.nama
+  };
+}
+
+// ── KALKULASI TIKTOK ─────────────────────────────────────────────────────────
+/**
+ * FORMULA TIKTOK SHOP (Mei 2026):
+ *
+ * Total Biaya per unit =
+ *   HPP
+ * + Packaging
+ * + Komisi Platform (% dari harga jual, setelah savings)
+ * + Komisi Dinamis (% dari harga jual, cap Rp650.000 mulai 18 Mei 2026)
+ * + Biaya Proses Pesanan (Rp1.250 flat, berlaku April 2026)
+ * + Biaya Layanan Logistik (Rp100–3.000/order, berlaku 1 Mei 2026)
+ * + Mall Service Fee (1,8% maks Rp50.000, khusus TikTok Mall)
+ * + Biaya Pre-Order (3% dari harga jual, jika aktif)
+ * + Komisi Afiliasi Kreator (% dari harga jual, jika aktif)
+ * + Buffer Retur (% dari harga jual)
+ * + Subsidi Ongkir (Rp flat per order)
+ * + Biaya Iklan per unit (budget / target unit)
+ * + Biaya SDM/Operasional
+ *
+ * PLATFORM COMMISSION SAVINGS (berlaku 18 Mei 2026):
+ * - Dual Stacked (GMV Max + Growth Xtra): hemat 8,18% dari tarif komisi platform
+ * - Salah satu saja: hemat ~4%
+ * - Penghematan dihitung: savings_rp = harga * savings_rate
+ *
+ * Cap Komisi Dinamis:
+ * - Sebelum 18 Mei 2026: cap Rp40.000/item
+ * - Mulai 18 Mei 2026: cap Rp650.000/item
+ * → Kalkulator ini menggunakan cap Rp650.000 (berlaku saat ini)
+ */
+function calcTikTok(harga, hpp, pkg, unit, iklan, impr, ctr, cvr, aff_pct, retur_pct, ongkir, ops, logistik, gmvmax, growthxtra, preorder) {
+  const kat = g('i_kat').value;
+  const t = TIKTOK_TARIF[kat] || TIKTOK_TARIF.fashion;
+  const jenis = g('i_jenis').value;
+
+  // Hitung savings dari Platform Commission Savings
+  let savings_rate = 0;
+  let savings_label = '';
+  if (gmvmax && growthxtra) {
+    savings_rate = 0.0818;
+    savings_label = 'Dual Stacked (GMV Max + Growth Xtra) — hemat 8,18%';
+  } else if (gmvmax) {
+    savings_rate = 0.04;
+    savings_label = 'GMV Max saja — hemat 4%';
+  } else if (growthxtra) {
+    savings_rate = 0.04;
+    savings_label = 'Growth Xtra saja — hemat 4%';
+  }
+
+  // Komisi platform efektif setelah savings
+  // savings dalam Rp = harga * savings_rate (bukan dari tarif, tapi dari harga jual)
+  const c_komisi_gross   = harga * t.komisi;         // komisi sebelum savings
+  const c_savings        = harga * savings_rate;      // penghematan dalam Rp
+  const c_komisi         = c_komisi_gross - c_savings; // komisi efektif
+
+  // Komisi dinamis — cap Rp650.000 mulai 18 Mei 2026
+  const c_dinamis_raw    = harga * t.dinamis;
+  const c_dinamis        = Math.min(c_dinamis_raw, 650000); // cap Rp650.000
+  const cap_terpotong    = c_dinamis_raw > 650000;
+
+  const c_hpp     = hpp;
+  const c_pkg     = pkg;
+  const c_proses  = 1250;
+  const c_logistik = logistik;
+  const c_mall    = jenis === 'mall' ? Math.min(harga * 0.018, 50000) : 0;
+  const c_preord  = preorder ? harga * 0.03 : 0;
+  const c_aff     = harga * (aff_pct / 100);
+  const c_retur   = harga * (retur_pct / 100);
+  const c_ongkir  = ongkir;
+  const c_iklan   = unit > 0 ? iklan / unit : 0;
+  const c_ops     = ops;
+
+  const total_biaya = c_hpp + c_pkg + c_komisi + c_dinamis + c_proses + c_logistik + c_mall + c_preord + c_aff + c_retur + c_ongkir + c_iklan + c_ops;
+
+  const profit_unit  = harga - total_biaya;
+  const gross_margin = harga > 0 ? (harga - hpp) / harga : 0;
+  const net_margin   = harga > 0 ? profit_unit / harga : 0;
+
+  const revenue      = harga * unit;
+  const total_profit = profit_unit * unit;
+
+  // ROAS
+  const roas           = iklan > 0 ? revenue / iklan : 0;
+  const roas_breakeven = iklan > 0 ? (total_biaya * unit) / iklan : 0;
+
+  // ACOS
+  const acos        = revenue > 0 ? (iklan / revenue) * 100 : 0;
+  const rate_platform = (t.komisi - savings_rate + t.dinamis/harga + (jenis==='mall'?0.018:0) + (preorder?0.03:0));
+  const acos_target = (1 - (total_biaya - c_iklan) / harga - t.bench[0]) * 100;
+
+  // CPC & order
+  const klik_estimasi    = impr * (ctr / 100);
+  const cpc_estimasi     = klik_estimasi > 0 ? iklan / klik_estimasi : 0;
+  const order_dari_iklan = klik_estimasi * (cvr / 100);
+  const profit_tanpa_iklan = harga - (total_biaya - c_iklan);
+  const breakeven_cpc    = cvr > 0 ? (profit_tanpa_iklan * cvr / 100) : 0;
+  const cpo              = order_dari_iklan > 0 ? iklan / order_dari_iklan : 0;
+  const cpm              = impr > 0 ? (iklan / impr) * 1000 : 0;
+
+  // Harga minimum
+  const rate_total = t.komisi - savings_rate + t.dinamis + (jenis==='mall'?0.018:0) + (preorder?0.03:0) + (aff_pct/100) + (retur_pct/100);
+  // Catatan: rate_total ini approx karena komisi_dinamis ada cap-nya
+  // Untuk harga_min, gunakan iterasi sederhana atau aproksimasi
+  const fixed_cost = hpp + pkg + 1250 + logistik + c_mall + ongkir + c_iklan + ops;
+  const harga_min  = rate_total < 1 ? fixed_cost / (1 - rate_total) : total_biaya;
+  const harga_ideal = (rate_total + t.bench[0]) < 1 ? fixed_cost / (1 - rate_total - t.bench[0]) : harga_min;
+
+  const eff_platform_rate = (c_komisi + c_dinamis + c_proses + c_logistik + c_mall) / harga;
+
+  return {
+    c_hpp, c_pkg, c_komisi, c_komisi_gross, c_savings, c_dinamis, c_dinamis_raw,
+    c_proses, c_logistik, c_mall, c_preord, c_aff, c_retur, c_ongkir, c_iklan, c_ops,
+    total_biaya, profit_unit, gross_margin, net_margin,
+    revenue, total_profit,
+    roas, roas_breakeven,
+    acos, acos_target,
+    cpc_estimasi, klik_estimasi, order_dari_iklan, breakeven_cpc, cpo, cpm,
+    harga_min, harga_ideal,
+    eff_platform_rate,
+    bench: t.bench, savings_rate, savings_label, cap_terpotong,
+    komisi_rate: t.komisi, dinamis_rate: t.dinamis,
+    nama_kat: t.nama
+  };
+}
+
+// ── STATUS HELPERS ───────────────────────────────────────────────────────────
+function roasStatus(roas, be) {
+  if (roas <= 0 || roas < be) return ['danger', 'Di bawah break-even ⚠'];
+  if (roas < be * 1.2)        return ['warn',   'Mendekati break-even'];
+  if (roas < be * 2)          return ['info',   'Cukup sehat'];
+  return ['ok', 'Sangat sehat'];
+}
+
+function marginStatus(nm, bench) {
+  if (nm < 0)          return ['danger', 'Rugi'];
+  if (nm < bench[0])   return ['warn',   'Di bawah standar'];
+  if (nm <= bench[1])  return ['ok',     'Sesuai standar'];
+  return ['ok', 'Di atas standar'];
+}
+
+function pill(cls, text) {
+  return `<span class="pill pill-${cls}">${text}</span>`;
+}
+
+// ── RENDER RINGKASAN ─────────────────────────────────────────────────────────
+function renderRingkasan(s, label) {
+  const harga = v('i_harga');
+  const unit  = v('i_unit');
+  const [rSt] = roasStatus(s.roas, s.roas_breakeven);
+  const [mSt] = marginStatus(s.net_margin, s.bench);
+  const [, mLbl] = marginStatus(s.net_margin, s.bench);
+  const [, rLbl] = roasStatus(s.roas, s.roas_breakeven);
+
+  return `
+    ${label ? `<div class="plat-header"><span class="plat-badge ${label==='Shopee'?'plat-shopee':'plat-tiktok'}">${label}</span></div>` : ''}
+    <div class="cards4">
+      <div class="mcard mc-${mSt}">
+        <div class="lbl">Net Margin</div>
+        <div class="val">${pctN(s.net_margin)}</div>
+        <div class="sub">Standar: ${pctN(s.bench[0])}–${pctN(s.bench[1])}<br>${mLbl}</div>
+      </div>
+      <div class="mcard mc-${rSt}">
+        <div class="lbl">ROAS Aktual</div>
+        <div class="val">${fmtR(s.roas,2)}x</div>
+        <div class="sub">Min (BE): ${fmtR(s.roas_breakeven,2)}x<br>${rLbl}</div>
+      </div>
+      <div class="mcard mc-${s.profit_unit>=0?'ok':'danger'}">
+        <div class="lbl">Profit / Unit</div>
+        <div class="val">Rp${fmt(s.profit_unit)}</div>
+        <div class="sub">Gross Margin: ${pctN(s.gross_margin)}</div>
+      </div>
+      <div class="mcard mc-${s.total_profit>=0?'info':'danger'}">
+        <div class="lbl">Profit / Bulan</div>
+        <div class="val">Rp${fmt(s.total_profit)}</div>
+        <div class="sub">dari ${fmt(unit)} unit</div>
+      </div>
+    </div>
+    <div class="cards2" style="margin-bottom:0">
+      <div class="mcard mc-neutral">
+        <div class="lbl">Harga Jual Min. (Break-even)</div>
+        <div class="val">Rp${fmt(s.harga_min)}</div>
+        <div class="sub">${harga < s.harga_min ? '⚠ Harga jual di bawah BEP!' : '✓ Harga jual di atas BEP'}</div>
+      </div>
+      <div class="mcard mc-neutral">
+        <div class="lbl">Harga Ideal (Margin Sehat)</div>
+        <div class="val">Rp${fmt(s.harga_ideal)}</div>
+        <div class="sub">Target net margin ${pctN(s.bench[0])}</div>
+      </div>
+    </div>`;
+}
+
+// ── RENDER BREAKDOWN BIAYA ───────────────────────────────────────────────────
+function renderBreakdown(s, isShopee, label, harga) {
+  const rows = isShopee ? [
+    ['HPP',                                 s.c_hpp,    s.c_hpp/harga,    false],
+    ['Packaging',                           s.c_pkg,    s.c_pkg/harga,    false],
+    [`Biaya Admin Shopee (${pctN(s.adminRate)})${s.mallExtra?` + Mall ${pctN(s.mallExtra)}`:''}`,
+                                            s.c_admin,  s.c_admin/harga,  false],
+    ['Biaya Proses Pesanan (flat Rp1.250)', s.c_proses, s.c_proses/harga, false],
+    s.c_spay>0  ? ['SPayLater Fee',         s.c_spay,   s.c_spay/harga,   false] : null,
+    s.c_preord>0? ['Biaya Pre-Order (+3%)', s.c_preord, s.c_preord/harga, false] : null,
+    s.c_aff>0   ? ['Komisi Afiliasi',       s.c_aff,    s.c_aff/harga,    false] : null,
+    ['Buffer Retur/Refund',                 s.c_retur,  s.c_retur/harga,  false],
+    s.c_ongkir>0? ['Subsidi Ongkir Seller', s.c_ongkir, s.c_ongkir/harga, false] : null,
+    ['Biaya Iklan (per unit)',              s.c_iklan,  s.c_iklan/harga,  false],
+    s.c_ops>0   ? ['Biaya SDM/Operasional', s.c_ops,    s.c_ops/harga,    false] : null,
+  ] : [
+    ['HPP',                                            s.c_hpp,      s.c_hpp/harga,      false],
+    ['Packaging',                                      s.c_pkg,      s.c_pkg/harga,      false],
+    [`Komisi Platform TikTok (${pctN(s.komisi_rate)})`,s.c_komisi_gross, s.c_komisi_gross/harga, false],
+    s.c_savings>0 ? [`  − Savings ${s.savings_label.split('—')[0].trim()}`,
+                                                      -s.c_savings,  -s.c_savings/harga,  true] : null,
+    [`Komisi Dinamis (${pctN(s.dinamis_rate)})${s.cap_terpotong?' [capped Rp650rb]':''}`,
+                                                       s.c_dinamis,  s.c_dinamis/harga,  false],
+    ['Biaya Proses Pesanan (flat Rp1.250)',             s.c_proses,   s.c_proses/harga,   false],
+    ['Biaya Layanan Logistik (Mei 2026)',               s.c_logistik, s.c_logistik/harga, false],
+    s.c_mall>0  ? ['Mall Service Fee (1,8%, max Rp50rb)', s.c_mall,  s.c_mall/harga,     false] : null,
+    s.c_preord>0? ['Biaya Pre-Order (+3%)',             s.c_preord,   s.c_preord/harga,   false] : null,
+    s.c_aff>0   ? ['Komisi Afiliasi Kreator',          s.c_aff,      s.c_aff/harga,      false] : null,
+    ['Buffer Retur/Refund',                            s.c_retur,    s.c_retur/harga,    false],
+    s.c_ongkir>0? ['Subsidi Ongkir Seller',            s.c_ongkir,   s.c_ongkir/harga,   false] : null,
+    ['Biaya Iklan (per unit)',                         s.c_iklan,    s.c_iklan/harga,    false],
+    s.c_ops>0   ? ['Biaya SDM/Operasional',            s.c_ops,      s.c_ops/harga,      false] : null,
+  ];
+
+  const validRows = rows.filter(r => r !== null);
+  const rowsHtml = validRows.map(([nama, rp, p, isDiscount]) => `
+    <tr>
+      <td style="${isDiscount?'color:#3B6D11;padding-left:20px':''}">${nama}</td>
+      <td class="tr" style="${isDiscount?'color:#3B6D11':''}">Rp${fmt(Math.abs(rp))}${isDiscount?' (−)':''}</td>
+      <td class="tr" style="${isDiscount?'color:#3B6D11':''}">${pctN(Math.abs(p))}</td>
+    </tr>`).join('');
+
+  return `
+    ${label ? `<div class="plat-header"><span class="plat-badge ${label==='Shopee'?'plat-shopee':'plat-tiktok'}">${label}</span></div>` : ''}
+    <table>
+      <thead><tr><th>Komponen Biaya</th><th class="tr">Per Unit (Rp)</th><th class="tr">% Harga Jual</th></tr></thead>
+      <tbody>
+        ${rowsHtml}
+        <tr class="highlight tfooter">
+          <td>Total Biaya per Unit</td>
+          <td class="tr ${s.total_biaya>harga?'':''}"><strong>Rp${fmt(s.total_biaya)}</strong></td>
+          <td class="tr"><strong>${pctN(s.total_biaya/harga)}</strong></td>
+        </tr>
+        <tr class="tprofit">
+          <td style="color:${s.profit_unit>=0?'#3B6D11':'#A32D2D'}">Profit Bersih / Unit</td>
+          <td class="tr" style="color:${s.profit_unit>=0?'#3B6D11':'#A32D2D'}"><strong>Rp${fmt(s.profit_unit)}</strong></td>
+          <td class="tr" style="color:${s.profit_unit>=0?'#3B6D11':'#A32D2D'}"><strong>${pctN(s.profit_unit/harga)}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note">
+      * Potongan efektif platform (biaya layanan + proses + logistik): <strong>${pctN(s.eff_platform_rate)}</strong> dari harga jual.<br>
+      * Gross Margin (sebelum biaya platform & iklan): <strong>${pctN(s.gross_margin)}</strong>
+    </div>`;
+}
+
+// ── RENDER METRIK IKLAN ──────────────────────────────────────────────────────
+function renderIklan(s, label) {
+  const [rSt, rLbl] = roasStatus(s.roas, s.roas_breakeven);
+  const acosOk = s.acos < s.acos_target;
+
+  return `
+    ${label ? `<div class="plat-header"><span class="plat-badge ${label==='Shopee'?'plat-shopee':'plat-tiktok'}">${label}</span></div>` : ''}
+
+    <div class="formula-box">
+      <div class="ftitle">Formula Kunci yang Digunakan</div>
+      <div class="fline">ROAS = Total Revenue ÷ Total Budget Iklan</div>
+      <div class="fline">ROAS Break-even = (Total Biaya × Unit) ÷ Budget Iklan</div>
+      <div class="fline">ACOS = (Budget Iklan ÷ Revenue) × 100%</div>
+      <div class="fline">Break-even CPC = Profit/unit (tanpa iklan) × (CVR%÷100)</div>
+      <div class="fline">CPO = Budget Iklan ÷ Estimasi Order dari Iklan</div>
+    </div>
+
+    <table>
+      <thead><tr><th>Metrik</th><th class="tr">Nilai</th><th>Keterangan</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ROAS Aktual</strong></td><td class="tr"><strong>${fmtR(s.roas,2)}x</strong></td><td>${pill(rSt, rLbl)}</td></tr>
+        <tr class="highlight"><td>ROAS Break-even (minimum)</td><td class="tr">${fmtR(s.roas_breakeven,2)}x</td><td>Profit = 0 di sini</td></tr>
+        <tr><td><strong>ACOS Aktual</strong></td><td class="tr"><strong>${fmtR(s.acos,1)}%</strong></td><td>${pill(acosOk?'ok':'warn', acosOk?'Di bawah target':'Di atas target')}</td></tr>
+        <tr class="highlight"><td>ACOS Target (break-even margin)</td><td class="tr">${fmtR(Math.max(0,s.acos_target),1)}%</td><td>Batas ACOS aman</td></tr>
+        <tr><td>Break-even CPC</td><td class="tr">Rp${fmt(s.breakeven_cpc)}</td><td>Max CPC masih untung</td></tr>
+        <tr class="highlight"><td>CPC Estimasi Aktual</td><td class="tr">Rp${fmt(s.cpc_estimasi)}</td><td>${s.cpc_estimasi <= s.breakeven_cpc ? pill('ok','Di bawah BE CPC') : pill('danger','Di atas BE CPC')}</td></tr>
+        <tr><td>CPO (Cost Per Order dari Iklan)</td><td class="tr">Rp${fmt(s.cpo)}</td><td>Per order berbayar</td></tr>
+        <tr class="highlight"><td>CPM Estimasi</td><td class="tr">Rp${fmt(s.cpm)}</td><td>Per 1.000 tayangan</td></tr>
+        <tr><td>Estimasi Klik dari Iklan</td><td class="tr">${fmt(s.klik_estimasi)}</td><td>CTR ${v('i_ctr')}%</td></tr>
+        <tr class="highlight"><td>Estimasi Order dari Iklan</td><td class="tr">${fmt(s.order_dari_iklan)}</td><td>CVR ${v('i_cvr')}%</td></tr>
+        <tr><td>Potongan Platform Efektif</td><td class="tr">${pctN(s.eff_platform_rate)}</td><td>${pill(s.eff_platform_rate<0.12?'ok':s.eff_platform_rate<0.18?'warn':'danger', s.eff_platform_rate<0.12?'Rendah':s.eff_platform_rate<0.18?'Sedang':'Tinggi')}</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      * Break-even CPC dihitung berdasarkan CVR input. Semakin tinggi CVR aktual, semakin tinggi CPC yang masih menguntungkan.<br>
+      * ACOS dan ROAS berbanding terbalik: ROAS naik = ACOS turun.
+    </div>`;
+}
+
+// ── RENDER SIMULASI SKENARIO ─────────────────────────────────────────────────
+/**
+ * Asumsi simulasi:
+ * - Budget iklan TETAP (tidak naik/turun proportional)
+ * - Yang berubah hanya unit terjual (demand)
+ * - Biaya iklan per unit berubah karena denominator (unit) berubah
+ * - ROAS berubah karena revenue berubah tapi iklan tetap
+ */
+function renderSkenario(s, label, isShopee) {
+  const harga    = v('i_harga');
+  const unit_base = v('i_unit');
+  const iklan    = v('i_iklan');
+
+  const scenarios = [
+    { pct: 0.5,  label: '🔴 Pesimis',   cls: 'sc-worst' },
+    { pct: 1.0,  label: '🟡 Realistis', cls: '' },
+    { pct: 1.5,  label: '🟢 Optimis',   cls: 'sc-best' },
+  ];
+
+  const cards = scenarios.map(sc => {
+    const unit_sc = Math.round(unit_base * sc.pct);
+    // Budget iklan TETAP, tapi biaya iklan per unit berubah
+    const iklan_per_unit_sc = unit_sc > 0 ? iklan / unit_sc : 0;
+
+    // Hitung ulang total biaya dengan iklan per unit yang baru
+    const delta_iklan = iklan_per_unit_sc - s.c_iklan; // selisih dari iklan per unit asal
+    const total_biaya_sc = s.total_biaya - s.c_iklan + iklan_per_unit_sc;
+    const profit_sc = harga - total_biaya_sc;
+    const total_profit_sc = profit_sc * unit_sc;
+    const revenue_sc = harga * unit_sc;
+    const roas_sc = iklan > 0 ? revenue_sc / iklan : 0;
+    const net_margin_sc = harga > 0 ? profit_sc / harga : 0;
+    const acos_sc = revenue_sc > 0 ? (iklan / revenue_sc) * 100 : 0;
+
+    const profitColor = total_profit_sc >= 0 ? '#3B6D11' : '#A32D2D';
+    return `
+      <div class="sc-card ${sc.cls}">
+        <div class="sc-title">${sc.label}</div>
+        <div class="sc-row"><span>Unit Terjual</span><span>${fmt(unit_sc)}</span></div>
+        <div class="sc-row"><span>Revenue</span><span>Rp${fmt(revenue_sc)}</span></div>
+        <div class="sc-row"><span>Budget Iklan</span><span>Rp${fmt(iklan)}</span></div>
+        <div class="sc-row"><span>Iklan/unit</span><span>Rp${fmt(iklan_per_unit_sc)}</span></div>
+        <div class="sc-row"><span>Profit/unit</span><span style="color:${profitColor}">Rp${fmt(profit_sc)}</span></div>
+        <div class="sc-row"><span>ROAS</span><span>${fmtR(roas_sc,2)}x</span></div>
+        <div class="sc-row"><span>ACOS</span><span>${fmtR(acos_sc,1)}%</span></div>
+        <div class="sc-row"><span>Net Margin</span><span>${pctN(net_margin_sc)}</span></div>
+        <div class="sc-row"><span>Net Profit / Bulan</span><span style="color:${profitColor}"><strong>Rp${fmt(total_profit_sc)}</strong></span></div>
+      </div>`;
+  }).join('');
+
+  return `
+    ${label ? `<div class="plat-header"><span class="plat-badge ${label==='Shopee'?'plat-shopee':'plat-tiktok'}">${label}</span></div>` : ''}
+    <div class="scen3">${cards}</div>
+    <div class="note">* Budget iklan diasumsikan TETAP di semua skenario. Unit terjual yang berubah mempengaruhi biaya iklan per unit, ROAS, dan margin.</div>`;
+}
+
+// ── RENDER REKOMENDASI ───────────────────────────────────────────────────────
+function renderReko(s, isShopee) {
+  const harga = v('i_harga');
+  const items = [];
+
+  if (s.profit_unit < 0) {
+    items.push({ cls:'danger', icon:'⛔', text: `<strong>Harga jual saat ini RUGI</strong> Rp${fmt(Math.abs(s.profit_unit))}/unit. Naikkan harga minimal ke <strong>Rp${fmt(s.harga_min)}</strong>.` });
+  }
+  if (s.net_margin < s.bench[0] && s.profit_unit >= 0) {
+    items.push({ cls:'warn', icon:'⚠️', text: `Net margin ${pctN(s.net_margin)} di bawah standar ${s.nama_kat||''} (${pctN(s.bench[0])}–${pctN(s.bench[1])}). Harga ideal: <strong>Rp${fmt(s.harga_ideal)}</strong>.` });
+  }
+  if (s.roas < s.roas_breakeven) {
+    items.push({ cls:'danger', icon:'📉', text: `ROAS ${fmtR(s.roas,2)}x di bawah break-even ${fmtR(s.roas_breakeven,2)}x. Kurangi budget iklan atau tingkatkan konversi.` });
+  }
+  if (s.cpc_estimasi > s.breakeven_cpc && s.breakeven_cpc > 0) {
+    items.push({ cls:'warn', icon:'💸', text: `CPC estimasi (Rp${fmt(s.cpc_estimasi)}) melebihi break-even CPC (Rp${fmt(s.breakeven_cpc)}). Optimalkan targeting agar CPC lebih efisien.` });
+  }
+  if (s.eff_platform_rate > 0.18) {
+    items.push({ cls:'warn', icon:'✂️', text: `Potongan platform ${pctN(s.eff_platform_rate)} cukup tinggi. Pertimbangkan menaikkan harga jual untuk kompensasi.` });
+  }
+  if (!isShopee && s.savings_rate > 0) {
+    items.push({ cls:'ok', icon:'💰', text: `Program <strong>${s.savings_label}</strong> aktif — menghemat Rp${fmt(s.c_savings)}/unit.` });
+  }
+  if (!isShopee && !g('i_gmvmax').value*1 && !g('i_growthxtra').value*1) {
+    items.push({ cls:'info', icon:'💡', text: `Pertimbangkan program <strong>Dual Stacked</strong> (GMV Max + Growth Xtra) untuk hemat hingga 8,18% komisi platform TikTok.` });
+  }
+  if (s.roas >= s.roas_breakeven * 2) {
+    items.push({ cls:'ok', icon:'🚀', text: `ROAS ${fmtR(s.roas,2)}x sangat sehat (2× lipat break-even). Pertimbangkan scale-up budget iklan.` });
+  }
+  if (s.net_margin >= s.bench[1]) {
+    items.push({ cls:'ok', icon:'✅', text: `Net margin ${pctN(s.net_margin)} di atas batas atas standar industri. Profitabilitas sangat baik!` });
+  }
+
+  if (items.length === 0) {
+    items.push({ cls:'ok', icon:'✅', text: `Semua metrik dalam zona sehat. ROAS ${fmtR(s.roas,2)}x, net margin ${pctN(s.net_margin)}.` });
+  }
+
+  return `<div class="reco-box">${items.map(i =>
+    `<div class="reco-item"><span class="reco-icon">${i.icon}</span><span>${i.text}</span></div>`
+  ).join('')}</div>`;
+}
+
+// ── MAIN CALC ────────────────────────────────────────────────────────────────
+function calc() {
+  const harga  = v('i_harga');
+  const hpp    = v('i_hpp');
+  const pkg    = v('i_pkg');
+  const unit   = v('i_unit');
+  const iklan  = v('i_iklan');
+  const impr   = v('i_impr');
+  const ctr    = v('i_ctr');
+  const cvr    = v('i_cvr');
+  const aff    = v('i_aff');
+  const retur  = v('i_retur');
+  const ongkir = v('i_ongkir');
+  const ops    = v('i_ops');
+  const spaylater = vi('i_spaylater');
+  const s_preorder = vi('i_s_preorder');
+  const logistik   = v('i_logistik');
+  const gmvmax     = vi('i_gmvmax');
+  const growthxtra = vi('i_growthxtra');
+  const preorder   = vi('i_preorder');
+
+  let sS = null, sT = null;
+  if (platform === 'shopee' || platform === 'both')
+    sS = calcShopee(harga, hpp, pkg, unit, iklan, impr, ctr, cvr, aff, retur, ongkir, ops, spaylater, s_preorder);
+  if (platform === 'tiktok' || platform === 'both')
+    sT = calcTikTok(harga, hpp, pkg, unit, iklan, impr, ctr, cvr, aff, retur, ongkir, ops, logistik, gmvmax, growthxtra, preorder);
+
+  const isBoth = platform === 'both';
+  const labelS = isBoth ? 'Shopee' : null;
+  const labelT = isBoth ? 'TikTok Shop' : null;
+
+  // Ringkasan
+  let rHtml = '';
+  if (sS) rHtml += renderRingkasan(sS, labelS) + renderReko(sS, true);
+  if (isBoth) rHtml += `<div class="divlabel">TikTok Shop</div>`;
+  if (sT) rHtml += renderRingkasan(sT, labelT) + renderReko(sT, false);
+
+  // Perbandingan jika both
+  if (isBoth && sS && sT) {
+    const diff = sS.profit_unit - sT.profit_unit;
+    const winner = diff >= 0 ? 'Shopee' : 'TikTok Shop';
+    rHtml += `
+      <div class="divlabel">Perbandingan Platform</div>
+      <div class="compare-grid">
+        <div class="mcard mc-${diff>=0?'ok':'neutral'}">
+          <div class="lbl">Profit/unit — Shopee</div>
+          <div class="val">Rp${fmt(sS.profit_unit)}</div>
+          <div class="sub">Net ${pctN(sS.net_margin)}</div>
+        </div>
+        <div class="mcard mc-${diff<0?'ok':'neutral'}">
+          <div class="lbl">Profit/unit — TikTok</div>
+          <div class="val">Rp${fmt(sT.profit_unit)}</div>
+          <div class="sub">Net ${pctN(sT.net_margin)}</div>
+        </div>
+      </div>
+      <div class="reco-box">
+        <div class="reco-item"><span class="reco-icon">🏆</span><span><strong>${winner} lebih menguntungkan</strong> — selisih Rp${fmt(Math.abs(diff))}/unit → Rp${fmt(Math.abs(diff)*unit)}/bulan (${fmt(unit)} unit).</span></div>
+      </div>`;
+  }
+  g('r-ringkasan').innerHTML = rHtml;
+
+  // Breakdown biaya
+  let bHtml = '';
+  if (sS) bHtml += renderBreakdown(sS, true, labelS, harga);
+  if (isBoth) bHtml += `<div class="divlabel">TikTok Shop</div>`;
+  if (sT) bHtml += renderBreakdown(sT, false, labelT, harga);
+  g('r-breakdown').innerHTML = bHtml;
+
+  // Metrik iklan
+  let iHtml = '';
+  if (sS) iHtml += renderIklan(sS, labelS);
+  if (isBoth) iHtml += `<div class="divlabel">TikTok Shop</div>`;
+  if (sT) iHtml += renderIklan(sT, labelT);
+  g('r-iklan').innerHTML = iHtml;
+
+  // Skenario
+  let scHtml = '';
+  if (sS) scHtml += renderSkenario(sS, labelS, true);
+  if (isBoth) scHtml += `<div class="divlabel">TikTok Shop</div>`;
+  if (sT) scHtml += renderSkenario(sT, labelT, false);
+  g('r-skenario').innerHTML = scHtml;
+
+  // Update timestamp
+  g('last-updated').textContent = 'Dihitung: ' + new Date().toLocaleTimeString('id-ID');
+}
+
+// ── TAB SWITCH ───────────────────────────────────────────────────────────────
+function switchTab(name) {
+  const tabs = ['ringkasan','breakdown','iklan','skenario'];
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('on', tabs[i]===name));
+  tabs.forEach(t => g('tc-'+t).classList.toggle('on', t===name));
+}
+
+// Init
+calc();
+</script>
+
+</div>
+
+<!-- Modal konfirmasi -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <h3 id="modal-title">Konfirmasi</h3>
+    <p id="modal-msg"></p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Batal</button>
+      <button class="btn-confirm" id="modal-confirm-btn">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  CONFIG — ubah sesuai kebutuhan
+// ════════════════════════════════════════════════════════════════
+const ADMIN_PASSWORD = 'admin1234';   // ← ganti password admin di sini
+const STORAGE_KEY    = 'roas_v1_tokens';
+const LOG_KEY        = 'roas_v1_logs';
+const SESSION_KEY    = 'roas_v1_session';
+
+// ════════════════════════════════════════════════════════════════
+//  PAGE ROUTER
+// ════════════════════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // khusus page-gate: flex layout
+  if (id === 'page-gate') {
+    document.getElementById('page-gate').style.display = 'flex';
+  }
+}
+
+function showAdminLogin() {
+  showPage('page-admin-login');
+  setTimeout(() => document.getElementById('admin-pass-input').focus(), 50);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  STORAGE HELPERS
+// ════════════════════════════════════════════════════════════════
+const loadTokens = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } };
+const saveTokens = t  => localStorage.setItem(STORAGE_KEY, JSON.stringify(t));
+const loadLogs   = () => { try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; } catch { return []; } };
+const saveLogs   = l  => localStorage.setItem(LOG_KEY, JSON.stringify(l.slice(0,300)));
+
+function addLog(type, text) {
+  const logs = loadLogs();
+  logs.unshift({ type, text, time: new Date().toLocaleString('id-ID') });
+  saveLogs(logs);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  IP DETECTION
+// ════════════════════════════════════════════════════════════════
+let userIP = '';
+
+async function detectIP() {
+  try {
+    const r = await fetch('https://api.ipify.org?format=json');
+    const d = await r.json();
+    userIP = d.ip || '';
+    document.getElementById('gate-ip-display').textContent = 'IP Anda: ' + userIP;
+  } catch {
+    userIP = 'local-' + btoa(navigator.userAgent + navigator.language).slice(0, 14);
+    document.getElementById('gate-ip-display').textContent = 'ID perangkat: ' + userIP;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  TOKEN VALIDATION (shared oleh gate & admin preview)
+// ════════════════════════════════════════════════════════════════
+function tokenGetStatus(t) {
+  if (t.status === 'revoked') return 'revoked';
+  if (t.expiry && new Date(t.expiry) < new Date()) return 'expired';
+  return t.status; // 'unused' | 'active'
+}
+
+function validateToken(tokenStr) {
+  const tokens = loadTokens();
+  const clean  = tokenStr.replace(/[\s-]/g, '').toUpperCase();
+  const t      = tokens.find(x => x.token.replace(/-/g,'') === clean);
+  const now    = new Date();
+
+  if (!t) return { ok: false, reason: 'Token tidak ditemukan atau tidak valid.' };
+  if (t.status === 'revoked') return { ok: false, reason: 'Token ini telah dicabut admin.' };
+  if (t.expiry && new Date(t.expiry) < now) {
+    t.status = 'expired'; saveTokens(tokens);
+    return { ok: false, reason: 'Token sudah kedaluwarsa. Hubungi admin.' };
+  }
+  if (t.ip && t.ip !== userIP) {
+    addLog('fail', 'Ditolak — Token: ' + t.token + ' | IP: ' + userIP + ' | IP terdaftar: ' + t.ip);
+    return { ok: false, reason: 'Token sudah terdaftar di IP lain.<br>Hubungi admin untuk reset.' };
+  }
+  if (!t.ip) {
+    t.ip = userIP;
+    t.status = 'active';
+    addLog('ok', 'Aktivasi — Token: ' + t.token + ' | Nama: ' + t.name + ' | IP: ' + userIP);
+  } else {
+    addLog('ok', 'Akses valid — Token: ' + t.token + ' | IP: ' + userIP);
+  }
+  t.lastAccess   = now.toISOString();
+  t.accessCount  = (t.accessCount || 0) + 1;
+  saveTokens(tokens);
+  return { ok: true, name: t.name };
+}
+
+// ════════════════════════════════════════════════════════════════
+//  TOKEN GATE (Page 1)
+// ════════════════════════════════════════════════════════════════
+function gateFormatToken(input) {
+  let v = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,16);
+  let f = '';
+  for (let i=0;i<v.length;i++) { if(i>0&&i%4===0) f+='-'; f+=v[i]; }
+  input.value = f;
+  input.classList.remove('shake');
+  hideGateMsg();
+}
+
+function showGateMsg(cls, html) {
+  const el = document.getElementById('gate-msg');
+  el.className = 'gate-msg ' + cls;
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+function hideGateMsg() { document.getElementById('gate-msg').style.display='none'; }
+
+async function gateSubmit() {
+  const input = document.getElementById('gate-token-input');
+  const raw   = input.value.trim();
+  const btn   = document.getElementById('gate-submit-btn');
+
+  if (raw.replace(/-/g,'').length < 16) {
+    input.classList.add('shake');
+    showGateMsg('err', '⚠ Token harus 16 karakter (format XXXX-XXXX-XXXX-XXXX).');
+    return;
+  }
+
+  btn.disabled = true;
+  showGateMsg('checking', '⏳ Memverifikasi token...');
+
+  // Pastikan IP sudah terdeteksi
+  if (!userIP) await detectIP();
+  await new Promise(r => setTimeout(r, 500));
+
+  const result = validateToken(raw);
+  btn.disabled = false;
+
+  if (result.ok) {
+    showGateMsg('ok', '✅ Token valid! Selamat datang, <strong>' + escHtml(result.name || 'Pengguna') + '</strong>');
+    sessionStorage.setItem(SESSION_KEY, raw);
+    setTimeout(() => {
+      showPage('page-calc');
+      if (typeof calc === 'function') calc();
+    }, 700);
+  } else {
+    input.classList.add('shake');
+    showGateMsg('err', '🚫 ' + result.reason);
+  }
+}
+
+function checkSession() {
+  const saved = sessionStorage.getItem(SESSION_KEY);
+  if (!saved) return false;
+  // quick check tanpa IP update agar cepat
+  const tokens = loadTokens();
+  const clean  = saved.replace(/[\s-]/g,'').toUpperCase();
+  const t      = tokens.find(x => x.token.replace(/-/g,'') === clean);
+  if (!t || t.status === 'revoked') { sessionStorage.removeItem(SESSION_KEY); return false; }
+  if (t.expiry && new Date(t.expiry) < new Date()) { sessionStorage.removeItem(SESSION_KEY); return false; }
+  // valid session — langsung ke kalkulator
+  showPage('page-calc');
+  if (typeof calc === 'function') setTimeout(calc, 50);
+  return true;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ADMIN AUTH (Page 2 → 3)
+// ════════════════════════════════════════════════════════════════
+function adminDoLogin() {
+  const pass = document.getElementById('admin-pass-input').value;
+  const err  = document.getElementById('admin-login-err');
+  if (pass === ADMIN_PASSWORD) {
+    document.getElementById('admin-pass-input').value = '';
+    err.textContent = '';
+    sessionStorage.setItem('roas_admin_auth', '1');
+    showPage('page-admin');
+    adminRenderAll();
+  } else {
+    err.textContent = 'Password salah!';
+    document.getElementById('admin-pass-input').value = '';
+  }
+}
+document.getElementById('admin-pass-input').addEventListener('keydown', e => { if(e.key==='Enter') adminDoLogin(); });
+
+function adminLogout() {
+  sessionStorage.removeItem('roas_admin_auth');
+  showPage('page-gate');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ADMIN — GENERATE TOKENS
+// ════════════════════════════════════════════════════════════════
+function genRandToken() {
+  const C = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let t = '';
+  for (let i=0;i<16;i++) { if(i>0&&i%4===0) t+='-'; t+=C[Math.floor(Math.random()*C.length)]; }
+  return t;
+}
+
+function adminGenerateTokens() {
+  const name   = document.getElementById('g-name').value.trim() || 'Tidak berlabel';
+  const expiry = parseInt(document.getElementById('g-expiry').value);
+  const qty    = parseInt(document.getElementById('g-qty').value);
+  const tokens = loadTokens();
+  const created = [];
+
+  for (let i=0;i<qty;i++) {
+    let tok;
+    do { tok = genRandToken(); } while (tokens.some(x=>x.token===tok));
+    tokens.push({
+      id:      Date.now() + i,
+      token:   tok,
+      name:    qty > 1 ? name + ' (' + (i+1) + ')' : name,
+      status:  'unused',
+      ip:      null,
+      created: new Date().toISOString(),
+      expiry:  expiry > 0 ? new Date(Date.now() + expiry*86400000).toISOString() : null,
+      lastAccess: null,
+      accessCount: 0
+    });
+    created.push(tok);
+  }
+  saveTokens(tokens);
+  addLog('info', 'Generate ' + qty + ' token untuk "' + name + '" (exp: ' + (expiry>0?expiry+' hari':'∞') + ')');
+
+  const resEl  = document.getElementById('gen-result');
+  const codeEl = document.getElementById('gen-result-code');
+  codeEl.textContent = created.join('   |   ');
+  resEl.style.display = 'block';
+
+  showToast('✅ ' + qty + ' token berhasil dibuat!');
+  adminRenderAll();
+}
+
+function copyGenResult() {
+  navigator.clipboard.writeText(document.getElementById('gen-result-code').textContent)
+    .then(() => showToast('📋 Token disalin!'));
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ADMIN — RENDER
+// ════════════════════════════════════════════════════════════════
+let adminFilter = 'all';
+
+function adminSetFilter(f, el) {
+  adminFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  adminRenderTable();
+}
+
+function adminRenderAll() {
+  adminRenderStats();
+  adminRenderTable();
+  adminRenderLogs();
+}
+
+function adminRenderStats() {
+  const tokens = loadTokens();
+  let total=tokens.length, active=0, unused=0, rev=0;
+  tokens.forEach(t => {
+    const s = tokenGetStatus(t);
+    if(s==='active') active++;
+    else if(s==='unused') unused++;
+    else rev++;
+  });
+  document.getElementById('s-total').textContent  = total;
+  document.getElementById('s-active').textContent = active;
+  document.getElementById('s-unused').textContent = unused;
+  document.getElementById('s-revoked').textContent = rev;
+}
+
+function adminRenderTable() {
+  const tokens = loadTokens().slice().reverse();
+  const tbody  = document.getElementById('token-tbody');
+  const list   = tokens.filter(t => adminFilter==='all' || tokenGetStatus(t)===adminFilter);
+
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state">Tidak ada token.</div></td></tr>';
+    return;
+  }
+  const pillMap = {
+    active:  '<span class="pill p-active">✅ Aktif</span>',
+    unused:  '<span class="pill p-unused">⏳ Belum dipakai</span>',
+    revoked: '<span class="pill p-revoked">🚫 Dicabut</span>',
+    expired: '<span class="pill p-expired">⌛ Expired</span>',
+  };
+
+  tbody.innerHTML = list.map((t,i) => {
+    const s   = tokenGetStatus(t);
+    const exp = t.expiry ? fmtDate(t.expiry) : '∞';
+    const expStyle = (t.expiry && new Date(t.expiry)<new Date()) ? 'color:#A32D2D' : '';
+    return `<tr>
+      <td style="color:#aaa;font-size:11px">${list.length-i}</td>
+      <td><code style="font-size:12px;font-weight:700;letter-spacing:.05em">${escHtml(t.token)}</code>
+        <button onclick="copyToken('${escHtml(t.token)}')" style="margin-left:4px;padding:1px 7px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;font-size:10px">📋</button>
+      </td>
+      <td>${escHtml(t.name)}</td>
+      <td>${pillMap[s]||''}</td>
+      <td class="ip-cell">${t.ip ? escHtml(t.ip) : '<span style="color:#ccc">—</span>'}</td>
+      <td style="color:#888;font-size:11px">${fmtDate(t.created)}</td>
+      <td style="font-size:11px;${expStyle}">${exp}</td>
+      <td style="color:#888;font-size:11px">${t.lastAccess ? fmtDate(t.lastAccess) : '—'}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap;min-width:120px">
+        ${(s==='active'||s==='unused') ? `<button class="btn-tbl btn-revoke" onclick="confirmRevoke(${t.id})">Cabut</button>` : ''}
+        ${(s==='revoked'||s==='expired') ? `<button class="btn-tbl btn-reactivate" onclick="adminReactivate(${t.id})">Aktifkan</button>` : ''}
+        <button class="btn-tbl btn-del" onclick="confirmDelete(${t.id})">Hapus</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function adminRenderLogs() {
+  const logs = loadLogs();
+  const wrap = document.getElementById('log-wrap');
+  if (!logs.length) { wrap.innerHTML = '<div class="empty-state">Belum ada aktivitas.</div>'; return; }
+  const cls = { ok:'log-ok', fail:'log-fail', info:'log-info', warn:'log-warn' };
+  wrap.innerHTML = logs.slice(0,100).map(l =>
+    `<div class="log-entry ${cls[l.type]||'log-info'}">
+      <span class="log-time">${l.time}</span>
+      <span class="log-text">${escHtml(l.text)}</span>
+    </div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ADMIN — ACTIONS
+// ════════════════════════════════════════════════════════════════
+function confirmRevoke(id) {
+  const t = loadTokens().find(x=>x.id===id);
+  if(!t) return;
+  showModal('Cabut Token', `Cabut token <strong>${t.token}</strong> milik <strong>${escHtml(t.name)}</strong>?<br>Pengguna tidak bisa lagi akses kalkulator.`, ()=>{
+    const tokens = loadTokens();
+    const found  = tokens.find(x=>x.id===id);
+    if(found){ found.status='revoked'; saveTokens(tokens); }
+    addLog('warn','Token dicabut: '+t.token+' ('+t.name+')');
+    showToast('🚫 Token dicabut!'); adminRenderAll();
+  });
+}
+
+function adminReactivate(id) {
+  const tokens = loadTokens();
+  const t = tokens.find(x=>x.id===id);
+  if(!t) return;
+  t.status='unused'; t.ip=null;
+  t.expiry = new Date(Date.now()+30*86400000).toISOString();
+  saveTokens(tokens);
+  addLog('ok','Token diaktifkan ulang: '+t.token+' ('+t.name+') — IP direset, +30 hari');
+  showToast('✅ Token aktif kembali (IP direset, +30 hari)'); adminRenderAll();
+}
+
+function confirmDelete(id) {
+  const t = loadTokens().find(x=>x.id===id);
+  if(!t) return;
+  showModal('Hapus Permanen', `Hapus permanen token <strong>${t.token}</strong>?<br>Data tidak bisa dikembalikan.`, ()=>{
+    let tokens = loadTokens().filter(x=>x.id!==id);
+    saveTokens(tokens);
+    addLog('fail','Token dihapus: '+t.token+' ('+t.name+')');
+    showToast('🗑 Token dihapus!'); adminRenderAll();
+  });
+}
+
+function confirmClearAll() {
+  showModal('Hapus Semua Token', 'Yakin ingin menghapus SEMUA token? Seluruh pengguna akan kehilangan akses.', ()=>{
+    saveTokens([]); addLog('warn','Semua token dihapus oleh admin.');
+    showToast('🗑 Semua token dihapus!'); adminRenderAll();
+  });
+}
+
+function copyToken(tok) {
+  navigator.clipboard.writeText(tok).then(()=>showToast('📋 Token disalin!'));
+}
+
+function clearLogs() { saveLogs([]); adminRenderLogs(); showToast('Log dihapus'); }
+
+// ════════════════════════════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════════════════════════════
+function showModal(title, msg, onConfirm) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-msg').innerHTML = msg;
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('modal-confirm-btn').onclick = () => { onConfirm(); closeModal(); };
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+// ════════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════════
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(iso) {
+  return new Date(iso).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════
+detectIP();
+// Cek admin session
+if (sessionStorage.getItem('roas_admin_auth') === '1') {
+  showPage('page-admin');
+  adminRenderAll();
+} else {
+  // Cek user token session
+  checkSession();
+}
+</script>
+
+</body>
+</html>
